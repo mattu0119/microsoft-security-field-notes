@@ -76,15 +76,18 @@ sequenceDiagram
 ## ディレクトリ構成
 
 ```text
-20260406_脆弱性通知/
+vuln-notification/
 ├── azuredeploy.bicep
+├── azuredeploy.json
 ├── azuredeploy.parameters.json
 ├── function-app/
+│   ├── .funcignore
 │   ├── function_app.py
 │   ├── host.json
 │   ├── requirements.txt
-│   ├── Test-VulnNotify.ps1
-│   └── RUNBOOK.md
+│   ├── RUNBOOK.md
+│   ├── SENDER_GUIDE.md
+│   └── Test-VulnNotify.ps1
 └── README.md
 ```
 

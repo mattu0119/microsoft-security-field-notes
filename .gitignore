@@ -1,1 +1,10 @@
 .vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.python_packages/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
