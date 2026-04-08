@@ -259,16 +259,19 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 
 1. `vuln-notify-api-app` の Expose an API を開く
 2. Application ID URI を `api://<API_APP_ID>` で設定
-3. Scope を追加:
-   - Scope 名: `access_as_user`
-   - 同意表示名: `Access vuln-notify API as user`（任意の分かりやすい名称で可）
-   - 状態: Enabled
-
 
 <p align="center">
   <img src="image.png" alt="Expose an API で access_as_user スコープを設定する画面" width="900" />
 </p>
 <p align="center"><em>Step 2: Expose an API で access_as_user スコープを追加</em></p>
+
+3. Scope を追加:
+   - Scope 名: `access_as_user`
+  - 管理者の同意の表示名: `Access vuln-notify API as user`（任意の分かりやすい名称で可）
+   - 状態: Enabled
+
+
+
 
 #### Step 3. API 側に Graph Delegated Permissions を追加
 
