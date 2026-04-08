@@ -267,10 +267,17 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 
 3. Scope を追加:
    - Scope 名: `access_as_user`
-  - 管理者の同意の表示名: `Access vuln-notify API as user`（任意の分かりやすい名称で可）
+  - 管理者の同意の表示名: `Access vuln-notify API as user`（管理者が同意画面で確認する名称）
+  - 管理者の同意の説明: 例 `この API が Teams 通知と Planner タスク作成に必要なアクセスを行うことを許可します。`（必須）
    - 状態: Enabled
 
+<p align="center">
+  <img src="image-1.png" alt="Scope 追加時に管理者同意の表示名を設定する画面" width="900" />
+</p>
+<p align="center"><em>Step 2: Scope 追加時に管理者同意の表示名を入力</em></p>
 
+> [!NOTE]
+> 管理者の同意は、テナント管理者がアプリ権限を組織に対して承認する操作です。未実施の場合、ユーザーがトークン取得に失敗し、OBO フローが成立しません。
 
 
 #### Step 3. API 側に Graph Delegated Permissions を追加
