@@ -171,6 +171,19 @@ python --version
 $PSVersionTable.PSVersion
 ```
 
+### 1-1. リソース展開に必要な Azure ロール
+
+このテンプレートではリソース作成に加えて、Key Vault スコープのロール割り当て (`Microsoft.Authorization/roleAssignments`) も実行します。
+
+最小構成の目安:
+
+| スコープ | 必要ロール | 用途 |
+|---|---|---|
+| サブスクリプション（または対象 RG） | `Contributor` | Resource Group / Function App / Key Vault などのリソース作成 |
+| 対象 Resource Group（または Key Vault） | `User Access Administrator` | Function の Managed Identity に Key Vault Secrets User ロールを付与 |
+
+簡易運用では `Owner` を付与しても実行できますが、公開環境では上記 2 ロール分離を推奨します。
+
 ### 2. Azure サインインとサブスクリプション選択
 
 ```powershell
