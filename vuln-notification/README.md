@@ -286,6 +286,8 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 2. Microsoft Graph の Delegated permissions を追加:
    - `Chat.Create`
    - `ChatMessage.Send`
+  - `Tasks.ReadWrite`（Planner タスクの作成・更新に必要）
+  - `User.ReadBasic.All`（UPN からユーザー情報を解決するために必要）
 3. `管理者の同意を与えます` を実行して Granted 状態を確認
 
 #### Step 4. API 側アプリの Client secret を作成
