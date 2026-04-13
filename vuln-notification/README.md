@@ -286,8 +286,8 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 2. Microsoft Graph の Delegated permissions を追加:
    - `Chat.Create`
    - `ChatMessage.Send`
-  - `Tasks.ReadWrite`（Planner タスクの作成・更新に必要）
-  - `User.ReadBasic.All`（UPN からユーザー情報を解決するために必要）
+   - `Tasks.ReadWrite`（Planner タスクの作成・更新に必要）
+   - `User.ReadBasic.All`（UPN からユーザー情報を解決するために必要）
 3. `管理者の同意を与えます` を実行して Granted 状態を確認
 
 #### Step 4. API 側アプリの Client secret を作成
@@ -305,6 +305,15 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 #### Step 6. クライアント側に API スコープを付与
 
 1. `vuln-notify-client-app` > API のアクセス許可 を開く
+2. `アクセス許可の追加` をクリック
+3. `所属する組織で使用している API` を選択し、`vuln-notify-api-app` を検索して選択
+4. `委任されたアクセス許可` を選択し、`access_as_user` をチェックして `アクセス許可の追加` を実行
+5. 必要に応じて `管理者の同意を与えます` を実行し、`Granted` 状態を確認
+
+補足:
+仮想マシンを起動できませんでした
+仮想マシン 'hub-hvvm01' を起動できませんでした。エラー: リソース 'Following SKUs have failed for Capacity Restrictions: Standard_D8as_v5' に要求された VM サイズは、現在、場所 'eastus2' で使用できません。別のサイズを試すか、別の場所または別のゾーンにデプロイしてください。詳細については、https://aka.ms/azureskunotavailable をご覧ください。
+- クライアント側で `access_as_user` が付与されていない場合、`api://<API_APP_ID>/access_as_user` のトークン取得に失敗します。
 #### Step 7. 最終確認（OBO 前提）
 
 以下が揃っていれば OBO 前提の Entra 構成は完了です。

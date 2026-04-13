@@ -1,4 +1,4 @@
-# ==============================================================
+﻿# ==============================================================
 # 脆弱性通知システム - 動作確認用 PowerShell スクリプト
 # 使用方法:
 #   .\function-app\Test-VulnNotify.ps1 -FunctionAppName "<FUNCTION_APP_NAME>" -ApiKey "xxx" -UserAccessToken "<Entra user token>" -Upns "analyst01@contoso.com","owner01@contoso.com"
