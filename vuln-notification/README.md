@@ -311,8 +311,8 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 
 3. Scope を追加:
    - Scope 名: `access_as_user`
-  - 管理者の同意の表示名: `Access vuln-notify API as user`（管理者が同意画面で確認する名称）
-  - 管理者の同意の説明: 例 `この API が Teams 通知と Planner タスク作成に必要なアクセスを行うことを許可します。`（必須）
+   - 管理者の同意の表示名: `Access vuln-notify API as user`（管理者が同意画面で確認する名称）
+   - 管理者の同意の説明: 例 `この API が Teams 通知と Planner タスク作成に必要なアクセスを行うことを許可します。`（必須）
    - 状態: Enabled
 
 <p align="center">
@@ -409,7 +409,37 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 "Key Vault: $kvName"
 ```
 
-#### Step 2. 必須シークレットを登録
+#### Step 2. 自分自身に Key Vault Secrets Officer ロールを付与
+
+この Key Vault は RBAC 認可モードで構成されているため、シークレットの読み書きには Azure RBAC ロールが必要です。
+
+```powershell
+$currentUser = az ad signed-in-user show --query id -o tsv
+$kvId = az keyvault show --name $kvName --query id -o tsv
+
+az role assignment create `
+  --role "Key Vault Secrets Officer" `
+  --assignee-object-id $currentUser `
+  --assignee-principal-type User `
+  --scope $kvId
+```
+
+1行版:
+
+```powershell
+az role assignment create --role "Key Vault Secrets Officer" --assignee-object-id $currentUser --assignee-principal-type User --scope $kvId
+```
+
+> [!NOTE]
+> ロール割り当て後、反映まで数分かかる場合があります。`Forbidden` エラーが出る場合は少し待ってから再実行してください。
+
+付与を確認:
+
+```powershell
+az role assignment list --scope $kvId --assignee $currentUser --output table
+```
+
+#### Step 3. 必須シークレットを登録
 
 ```powershell
 az keyvault secret set --vault-name $kvName --name TENANT-ID --value "<TENANT_ID>"
@@ -417,7 +447,7 @@ az keyvault secret set --vault-name $kvName --name CLIENT-ID --value "<API_APP_I
 az keyvault secret set --vault-name $kvName --name CLIENT-SECRET --value "<API_APP_CLIENT_SECRET>"
 ```
 
-#### Step 3. 登録結果を確認
+#### Step 4. 登録結果を確認
 
 ```powershell
 az keyvault secret show --vault-name $kvName --name TENANT-ID --query id -o tsv
@@ -425,7 +455,7 @@ az keyvault secret show --vault-name $kvName --name CLIENT-ID --query id -o tsv
 az keyvault secret show --vault-name $kvName --name CLIENT-SECRET --query id -o tsv
 ```
 
-#### Step 4. 値の整合性チェック（推奨）
+#### Step 5. 値の整合性チェック（推奨）
 
 ```powershell
 az keyvault secret show --vault-name $kvName --name CLIENT-ID --query value -o tsv
