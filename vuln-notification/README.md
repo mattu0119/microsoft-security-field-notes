@@ -295,7 +295,7 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 3. 作成後、`アプリケーション (クライアント) ID` を控える（後で `<API_APP_ID>` として使用）
 
 <p align="center">
-  <img src="image-3.png" alt="Entra ID アプリの登録画面で vuln-notify-api-app を新規登録する画面" width="900" />
+  <img src="images/image-3.png" alt="Entra ID アプリの登録画面で vuln-notify-api-app を新規登録する画面" width="900" />
 </p>
 <p align="center"><em>Step 1: Entra ID でアプリを新規登録</em></p>
 
@@ -305,7 +305,7 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 2. Application ID URI を `api://<API_APP_ID>` で設定
 
 <p align="center">
-  <img src="image.png" alt="Expose an API で access_as_user スコープを設定する画面" width="900" />
+  <img src="images/image.png" alt="Expose an API で access_as_user スコープを設定する画面" width="900" />
 </p>
 <p align="center"><em>Step 2: Expose an API で access_as_user スコープを追加</em></p>
 
@@ -316,7 +316,7 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
    - 状態: Enabled
 
 <p align="center">
-  <img src="image-4.png" alt="Scope 追加時に管理者同意の表示名を設定する画面" width="900" />
+  <img src="images/image-4.png" alt="Scope 追加時に管理者同意の表示名を設定する画面" width="900" />
 </p>
 <p align="center"><em>Step 2: Scope 追加時に管理者同意の表示名を入力</em></p>
 
@@ -329,7 +329,7 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 1. `vuln-notify-api-app` > API のアクセス許可 を開く
 
 <p align="center">
-  <img src="image-5.png" alt="API のアクセス許可画面で Add a permission をクリックする画面" width="900" />
+  <img src="images/image-5.png" alt="API のアクセス許可画面で Add a permission をクリックする画面" width="900" />
 </p>
 <p align="center"><em>Step 3: API のアクセス許可から権限を追加</em></p>
 
@@ -341,7 +341,7 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 3. `管理者の同意を与えます` を実行して Granted 状態を確認
 
 <p align="center">
-  <img src="image-6.png" alt="Microsoft Graph を選択し Delegated permissions で権限を検索・追加する手順画面" width="900" />
+  <img src="images/image-6.png" alt="Microsoft Graph を選択し Delegated permissions で権限を検索・追加する手順画面" width="900" />
 </p>
 <p align="center"><em>Step 3: Microsoft Graph > Delegated permissions から必要な権限を追加</em></p>
 
@@ -353,7 +353,7 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 4. この値を `<API_APP_CLIENT_SECRET>` として Key Vault シークレット投入時に使用
 
 <p align="center">
-  <img src="image-7.png" alt="Certificates & secrets 画面で New client secret を作成する手順" width="900" />
+  <img src="images/image-7.png" alt="Certificates & secrets 画面で New client secret を作成する手順" width="900" />
 </p>
 <p align="center"><em>Step 4: 証明書とシークレットからクライアントシークレットを作成</em></p>
 
@@ -374,14 +374,14 @@ $kvName = az deployment group show -g vuln-notify-rg -n $deploymentName --query 
 4. `委任されたアクセス許可` を選択し、`access_as_user` をチェックして `アクセス許可の追加` を実行
 
 <p align="center">
-  <img src="image-8.png" alt="クライアント側アプリで vuln-notify-api-app の access_as_user を Delegated permissions として追加する画面" width="900" />
+  <img src="images/image-8.png" alt="クライアント側アプリで vuln-notify-api-app の access_as_user を Delegated permissions として追加する画面" width="900" />
 </p>
 <p align="center"><em>Step 6: クライアント側アプリに access_as_user の委任権限を付与</em></p>
 
 5. 必要に応じて `管理者の同意を与えます` を実行し、`Granted` 状態を確認
 
 <p align="center">
-  <img src="image-9.png" alt="クライアント側アプリの API permissions 画面で Grant admin consent を実行する画面" width="900" />
+  <img src="images/image-9.png" alt="クライアント側アプリの API permissions 画面で Grant admin consent を実行する画面" width="900" />
 </p>
 <p align="center"><em>Step 6: Grant admin consent をクリックして管理者同意を付与</em></p>
 
@@ -576,7 +576,7 @@ az rest --method GET --url "https://graph.microsoft.com/v1.0/me/planner/plans" -
 > `/me/planner/plans` は自分がメンバーになっている Planner プランのみ返します。`"value": []` で空の場合は、対象プランが所属する Microsoft 365 グループのメンバーになっているか確認してください。プランが未作成の場合は、Teams チャネルで `Tasks by Planner` タブを追加するか [tasks.office.com](https://tasks.office.com) で新規作成します。
 
 <p align="center">
-  <img src="image-10.png" alt="Graph API /me/planner/plans の実行結果で Plan ID を確認する画面" width="900" />
+  <img src="images/image-10.png" alt="Graph API /me/planner/plans の実行結果で Plan ID を確認する画面" width="900" />
 </p>
 <p align="center"><em>Step 2: /me/planner/plans の出力から id（Plan ID）を取得</em></p>
 
@@ -616,6 +616,47 @@ $buckets.value | Select-Object id,name,orderHint | Format-Table -AutoSize
 - `-PlannerPlanId` に `plan_id` を指定
 - `-PlannerBucketId` に `bucket_id` を指定
 - JSON で送る場合は `planner.plan_id` と `planner.bucket_id` に指定
+
+### 8. Function App のコードデプロイ
+
+Function App のコード（`function_app.py` 等）を Azure にアップロードします。Function App 名はデプロイごとにサフィックスが異なるため、`$funcApp` 変数を使用します。
+
+```powershell
+$deploymentName = "vuln-notify-infra"
+$funcUrl = az deployment group show -g vuln-notify-rg -n $deploymentName --query "properties.outputs.functionAppUrl.value" -o tsv
+$funcApp = $funcUrl -replace '^https://','' -replace '\.azurewebsites\.net$',''
+"Function App: $funcApp"
+
+Push-Location function-app
+func azure functionapp publish $funcApp --python --build local
+Pop-Location
+```
+
+> [!WARNING]
+> `Error creating a Blob container reference. Please make sure your connection string in "AzureWebJobsStorage" is valid` が出る場合は、`AzureWebJobsStorage` を再設定してから再デプロイしてください。
+>
+> ```powershell
+> $stName = az storage account list -g vuln-notify-rg --query "[0].name" -o tsv
+> $connStr = az storage account show-connection-string --name $stName --resource-group vuln-notify-rg --query connectionString -o tsv
+> az functionapp config appsettings set --name $funcApp --resource-group vuln-notify-rg --settings "AzureWebJobsStorage=$connStr"
+> az functionapp restart --name $funcApp --resource-group vuln-notify-rg
+>
+> # テンプレート修正（azuredeploy.bicep）を既存環境へ反映する場合
+> az deployment group create --name $deploymentName --resource-group vuln-notify-rg --template-file azuredeploy.bicep --parameters "@azuredeploy.parameters.json"
+>
+> # Function App コードを再デプロイ
+> Push-Location function-app
+> func azure functionapp publish $funcApp --python --build local
+> Pop-Location
+> ```
+
+<p align="center">
+  <img src="images/image-11.png" alt="AzureWebJobsStorage の接続文字列を再設定して再デプロイする手順の実行例" width="900" />
+</p>
+<p align="center"><em>AzureWebJobsStorage エラー発生時の復旧手順（実行例）</em></p>
+
+> [!NOTE]
+> 現在のテンプレートは Linux Consumption プラン（Y1 SKU）を使用しています。Linux Consumption は **2028年9月30日に EOL** となるため、本番運用では [Flex Consumption プラン](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan) への移行を検討してください。
 
 ## API 仕様（現在）
 
@@ -665,54 +706,13 @@ Content-Type: application/json
 }
 ```
 
-## Planner 担当者の仕様
+### Planner 担当者の仕様
 
 - 既定: `upns` の全員を担当者として割り当て
 - `planner.assignee_upn` を指定した場合: その 1 名のみ割り当て
 - `planner.assignee_upns` を指定した場合: 指定した複数 UPN を割り当て
 
-## Function App のコードデプロイ
-
-Function App のコード（`function_app.py` 等）を Azure にアップロードします。Function App 名はデプロイごとにサフィックスが異なるため、`$funcApp` 変数を使用します。
-
-```powershell
-$deploymentName = "vuln-notify-infra"
-$funcUrl = az deployment group show -g vuln-notify-rg -n $deploymentName --query "properties.outputs.functionAppUrl.value" -o tsv
-$funcApp = $funcUrl -replace '^https://','' -replace '\.azurewebsites\.net$',''
-"Function App: $funcApp"
-
-Push-Location function-app
-func azure functionapp publish $funcApp --python --build local
-Pop-Location
-```
-
-> [!WARNING]
-> `Error creating a Blob container reference. Please make sure your connection string in "AzureWebJobsStorage" is valid` が出る場合は、`AzureWebJobsStorage` を再設定してから再デプロイしてください。
->
-> ```powershell
-> $stName = az storage account list -g vuln-notify-rg --query "[0].name" -o tsv
-> $connStr = az storage account show-connection-string --name $stName --resource-group vuln-notify-rg --query connectionString -o tsv
-> az functionapp config appsettings set --name $funcApp --resource-group vuln-notify-rg --settings "AzureWebJobsStorage=$connStr"
-> az functionapp restart --name $funcApp --resource-group vuln-notify-rg
->
-> # テンプレート修正（azuredeploy.bicep）を既存環境へ反映する場合
-> az deployment group create --name $deploymentName --resource-group vuln-notify-rg --template-file azuredeploy.bicep --parameters "@azuredeploy.parameters.json"
->
-> # Function App コードを再デプロイ
-> Push-Location function-app
-> func azure functionapp publish $funcApp --python --build local
-> Pop-Location
-> ```
-
-<p align="center">
-  <img src="image-11.png" alt="AzureWebJobsStorage の接続文字列を再設定して再デプロイする手順の実行例" width="900" />
-</p>
-<p align="center"><em>AzureWebJobsStorage エラー発生時の復旧手順（実行例）</em></p>
-
-> [!NOTE]
-> 現在のテンプレートは Linux Consumption プラン（Y1 SKU）を使用しています。Linux Consumption は **2028年9月30日に EOL** となるため、本番運用では [Flex Consumption プラン](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan) への移行を検討してください。
-
-## テスト手順
+### 9. テスト手順
 
 ```powershell
 $token = az account get-access-token --scope "api://<API_APP_ID>/access_as_user" --query accessToken -o tsv
@@ -726,7 +726,7 @@ $token = az account get-access-token --scope "api://<API_APP_ID>/access_as_user"
   -PlannerBucketId '<PLANNER_BUCKET_ID>'
 ```
 
-## 最近の検証結果
+#### 最近の検証結果
 
 - グループチャット投稿: 成功
 - Planner タスク作成: 成功
