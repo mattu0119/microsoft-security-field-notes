@@ -628,9 +628,12 @@ $funcApp = $funcUrl -replace '^https://','' -replace '\.azurewebsites\.net$',''
 "Function App: $funcApp"
 
 Push-Location function-app
-func azure functionapp publish $funcApp --python --build remote
+func azure functionapp publish $funcApp --python --build local
 Pop-Location
 ```
+
+> [!NOTE]
+> `--build remote` は一部の Function App（2019年8月1日以前に作成された環境など）でサポートされていないため、`--build local` を使用しています。`--build local` はローカルで `pip install` を実行してからパッケージごとアップロードする方式で、Managed Identity 認証への影響はありません。
 
 > [!NOTE]
 > このテンプレートでは `AzureWebJobsStorage` を **Managed Identity（ID ベース接続）** で構成しています。Function App のアプリ設定には `AzureWebJobsStorage__accountName` のみが設定され、アクセスキーは使用しません。Bicep テンプレートで Storage Blob Data Owner / Storage Queue Data Contributor / Storage Table Data Contributor の 3 ロールを自動割り当てします。
