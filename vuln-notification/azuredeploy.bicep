@@ -209,4 +209,5 @@ resource storageTableDataContributorRole 'Microsoft.Authorization/roleAssignment
 // ── 出力 ────────────────────────────────────────────────────
 output functionAppUrl             string = 'https://${functionApp.properties.defaultHostName}'
 output keyVaultName               string = keyVault.name
+output storageAccountName         string = storageAccount.name
 output managedIdentityPrincipalId string = functionApp.identity.principalId

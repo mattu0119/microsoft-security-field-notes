@@ -625,18 +625,81 @@ Function App のコード（`function_app.py` 等）を Azure にアップロー
 $deploymentName = "vuln-notify-infra"
 $funcUrl = az deployment group show -g vuln-notify-rg -n $deploymentName --query "properties.outputs.functionAppUrl.value" -o tsv
 $funcApp = $funcUrl -replace '^https://','' -replace '\.azurewebsites\.net$',''
+$storageAccount = az deployment group show -g vuln-notify-rg -n $deploymentName --query "properties.outputs.storageAccountName.value" -o tsv
 "Function App: $funcApp"
-
-Push-Location function-app
-func azure functionapp publish $funcApp --python --build local
-Pop-Location
+"Storage Account: $storageAccount"
 ```
 
 > [!NOTE]
-> `--build remote` は一部の Function App（2019年8月1日以前に作成された環境など）でサポートされていないため、`--build local` を使用しています。`--build local` はローカルで `pip install` を実行してからパッケージごとアップロードする方式で、Managed Identity 認証への影響はありません。
+> `$storageAccount` が空の場合は、Bicep テンプレートを再デプロイしてください（`storageAccountName` 出力が追加されています）。または以下で取得できます。
+>
+> ```powershell
+> $storageAccount = az functionapp config appsettings list --name $funcApp --resource-group vuln-notify-rg --query "[?name=='AzureWebJobsStorage__accountName'].value" -o tsv
+> ```
+
+#### Step 1. デプロイ用 Blob コンテナーにアクセスするためのロールを付与
+
+初回のみ、自分自身に Storage Blob Data Contributor ロールを付与します（Blob アップロードに必要）。
+
+```powershell
+$currentUser = az ad signed-in-user show --query id -o tsv
+$storageId = az storage account show --name $storageAccount --resource-group vuln-notify-rg --query id -o tsv
+
+az role assignment create `
+  --role "Storage Blob Data Contributor" `
+  --assignee-object-id $currentUser `
+  --assignee-principal-type User `
+  --scope $storageId
+```
+
+1行版:
+
+```powershell
+az role assignment create --role "Storage Blob Data Contributor" --assignee-object-id $currentUser --assignee-principal-type User --scope $storageId
+```
 
 > [!NOTE]
-> このテンプレートでは `AzureWebJobsStorage` を **Managed Identity（ID ベース接続）** で構成しています。Function App のアプリ設定には `AzureWebJobsStorage__accountName` のみが設定され、アクセスキーは使用しません。Bicep テンプレートで Storage Blob Data Owner / Storage Queue Data Contributor / Storage Table Data Contributor の 3 ロールを自動割り当てします。
+> ロール反映まで数分かかる場合があります。`AuthorizationPermissionMismatch` エラーが出た場合は少し待ってから再実行してください。
+
+#### Step 2. パッケージを作成してデプロイ
+
+```powershell
+# パッケージを作成
+Push-Location function-app
+python -m pip install -r requirements.txt --target .python_packages/lib/site-packages --upgrade --quiet
+Compress-Archive -Path * -DestinationPath ..\deploy.zip -Force
+Pop-Location
+
+# Blob コンテナーを作成（初回のみ）
+az storage container create --name function-releases --account-name $storageAccount --auth-mode login
+
+# zip をアップロード
+az storage blob upload `
+  --account-name $storageAccount `
+  --container-name function-releases `
+  --name deploy.zip `
+  --file deploy.zip `
+  --auth-mode login `
+  --overwrite
+
+# WEBSITE_RUN_FROM_PACKAGE を Blob URL に設定
+$blobUrl = "https://$storageAccount.blob.core.windows.net/function-releases/deploy.zip"
+az functionapp config appsettings set `
+  --name $funcApp `
+  --resource-group vuln-notify-rg `
+  --settings "WEBSITE_RUN_FROM_PACKAGE=$blobUrl"
+
+# 再起動して反映
+az functionapp restart --name $funcApp --resource-group vuln-notify-rg
+
+Remove-Item deploy.zip
+```
+
+> [!NOTE]
+> このテンプレートでは `AzureWebJobsStorage` を **Managed Identity（ID ベース接続）** で構成しています（`AzureWebJobsStorage__accountName` のみ設定、アクセスキー不使用）。この構成では `func azure functionapp publish` / `az functionapp deployment source config-zip` / `az webapp deploy` がいずれも動作しないため、**Blob Storage にパッケージをアップロードし `WEBSITE_RUN_FROM_PACKAGE` で参照する方式**を使用しています。Function App の Managed Identity には Bicep テンプレートで Storage Blob Data Owner ロールが自動付与されているため、Blob から直接パッケージを読み込めます。
+
+> [!TIP]
+> `pip` コマンドが「Access is denied」で失敗する場合は `python -m pip` を使用してください。Python の Scripts フォルダに実行権限がない環境でも `python -m pip` は動作します。
 
 > [!NOTE]
 > 現在のテンプレートは Linux Consumption プラン（Y1 SKU）を使用しています。Linux Consumption は **2028年9月30日に EOL** となるため、本番運用では [Flex Consumption プラン](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan) への移行を検討してください。
