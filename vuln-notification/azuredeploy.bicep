@@ -49,6 +49,20 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
+// ── 1-b. Deployment 用 Blob Container（Flex Consumption 必須）──
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobService
+  name: 'deploymentpackage'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
 // ── 2. Log Analytics Workspace ──────────────────────────────
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsName
@@ -72,22 +86,22 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-// ── 4. App Service Plan（従量課金・Linux）──────────────────
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
+// ── 4. App Service Plan（Flex Consumption・Linux）──────────
+resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: appServicePlanName
   location: location
-  kind: 'linux'
+  kind: 'functionapp'
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'FC1'
+    tier: 'FlexConsumption'
   }
   properties: {
     reserved: true
   }
 }
 
-// ── 5. Function App（Managed Identity 付き・Linux）─────────
-resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
+// ── 5. Function App（Flex Consumption・Managed Identity 付き）
+resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   name: functionAppName
   location: location
   kind: 'functionapp,linux'
@@ -97,22 +111,32 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
+    functionAppConfig: {
+      deployment: {
+        storage: {
+          type: 'blobContainer'
+          value: '${storageAccount.properties.primaryEndpoints.blob}deploymentpackage'
+          authentication: {
+            type: 'SystemAssignedIdentity'
+          }
+        }
+      }
+      scaleAndConcurrency: {
+        maximumInstanceCount: 100
+        instanceMemoryMB: 2048
+      }
+      runtime: {
+        name: 'python'
+        version: '3.12'
+      }
+    }
     siteConfig: {
-      linuxFxVersion: 'PYTHON|3.11'
       ftpsState: 'Disabled'
       minTlsVersion: '1.2'
       appSettings: [
         {
           name: 'AzureWebJobsStorage__accountName'
           value: storageAccount.name
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'python'
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
@@ -138,6 +162,9 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
       ]
     }
   }
+  dependsOn: [
+    deploymentContainer
+  ]
 }
 
 // ── 6. Key Vault ────────────────────────────────────────────
@@ -208,6 +235,7 @@ resource storageTableDataContributorRole 'Microsoft.Authorization/roleAssignment
 
 // ── 出力 ────────────────────────────────────────────────────
 output functionAppUrl             string = 'https://${functionApp.properties.defaultHostName}'
+output functionAppName            string = functionApp.name
 output keyVaultName               string = keyVault.name
 output storageAccountName         string = storageAccount.name
 output managedIdentityPrincipalId string = functionApp.identity.principalId
