@@ -1,0 +1,6 @@
+{
+    "azureFunctions.deploySubpath": "vuln-notification\\function-app/azure_functions",
+    "azureFunctions.projectLanguage": "Ballerina",
+    "azureFunctions.projectRuntime": "~4",
+    "azureFunctions.preDeployTask": "package (functions)"
+}

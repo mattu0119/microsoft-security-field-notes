@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "func",
+      "label": "func: host start",
+      "command": "host start",
+      "problemMatcher": "$func-java-watch",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/vuln-notification\\function-app/azure_functions"
+      },
+      "dependsOn": "package (functions)"
+    },
+    {
+      "label": "package (functions)",
+      "command": "bal build",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/vuln-notification\\function-app"
+      }
+    }
+  ]
+}
